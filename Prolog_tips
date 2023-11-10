@@ -1,0 +1,68 @@
+AND = ,
+OR = ;
+IF = :-
+
+
+ATOMS Type 1
+
+    Strictly letters+numbers
+
+ATOM Type 2
+
+    Strictly special characters
+
+If something is declared in single quotes then it's an atom:
+
+    For ex: '230uec' is an atom but if we remove that it's not an atom.
+
+Constants in prolog starts with a Uppercase or underscore
+
+    ex: Hell, _name
+
+Anonymous variable (Variable wont be assigned)
+
+    ex: _
+
+Cannot intialize two atoms to a variable
+
+
+Relational :
+
+Equal               : X=:=Y
+Not Equal           : X\=Y
+less than           : X < Y
+greater than        : X > Y
+less than eq        : X =< Y (different way)
+greater thann eq    : X >= Y
+
+
+Logic:
+
+2 plus 3        : X is 2+3
+2 minus 3       : X is 2-3
+2 multiply 3    : X is 2*3
+2 divivde 3     : X is 2/3 (quotient)
+2 divide 3      : X is 2//3 (int quotient)
+2 mode 3        : X is 10 mod 2(reminder)
+
+
+lists:
+
+[X,Y,Z]=[1,2,3] means X=1, Y=2,Z=3
+
+[X|Y] means X is head and rest all is tail.
+
+
+In approaching a problem always first write the break statement first and just loop through to reach the break statement and then do any operation.
+
+
+findNum(X,[X|_]).
+findNum(X,[_|T]):- findNum(X,T).
+
+
+size([],0).
+size([H|T], N):- size(T,N1) , N is N1+1.
+
+
+sum([],0).
+sum([H|T], R):- sum(T, N1), R is H+N1. 
