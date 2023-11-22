@@ -128,7 +128,9 @@ shortest(X,Y,Trip,Result):- findall(Variable, trip_dist(X,Y,Variable), List), mi
 cheapest(X,Y,Trip,Result):- findall(Variable, trip_cost(X,Y,Variable), List), min_time_list(List,Trip,Result).
 
 
-/* Answer 9*/
+/* Answer 9
+need to fix this 
+*/
 trip_to_nation(X, Y, T) :- country(C, Y), flight(X, Z, _, _, _, _), flight(Z, C, _, _, _, _), append([X, Z],[C], T).
 
 
@@ -143,6 +145,125 @@ all_trip_to_nation(X,Y,Response):- country(Itr, Y), iterate_all(X,Itr,[],Respons
 iterate_all(X,Itr_City,List,[X,Itr_City]):- flight(X,Itr_City,_,_,_,_), \+member(Itr_City, List).
 
 iterate_all(X,Itr_City,List,[X|Response]):- flight(X,Z,_,_,_,_), \+ member(Z, List), iterate_all(Z,Itr_City,[X|List],Response).
+
+
+/* part 2 -----------------------------------------------------------*/
+
+
+/* Answer 1
+
+I have approached this by writing normal recursion program in js and converted that to below one.
+ I approched this below code in the JS first and it made it easier for me convert that Prolog.
+function print_loop(b){
+    if(b.length == 0){
+         return "|";
+    }
+    else{
+        return "|"+b[0]+print_loop(b.slice(1))
+    }
+}
+
+function recur(a){
+  if(a.length==0){
+      return "";
+  }
+    else{
+        console.log(print_loop(a[0]));
+        return recur(a.splice(1));
+    }
+}
+
+recur([['a','b'],['d','e'],['l','o','p']]);
+
+*/
+
+print_head(H):- string_concat("|",H,X), write(X).
+print_loop([]):-write('|'),writeln('').
+print_loop([H|T]):- print_head(H), print_loop(T).
+print_status([]).
+print_status([H|T]):- print_loop(H), print_status(T).
+
+/* Answer 2 */
+itr_elem([],_,end).
+itr_elem([H|T],E,P,Init):- =(H,E) ,P is Init; X is Init + 1,itr_elem(T,E,P,X).
+find_elem([H|T], E,P):-itr_elem([H|T],E,P,0).
+
+high([H|T],E,P):- find_elem(H, E, P);high(T,E,P).
+
+/* Answer 3 
+
+(MAKE IT IN A SINGLE LIST !!!!!) -> re work
+
+*/
+itr_pos([H|T], Position,Element,Init):- Position=:=Init, append([H],[],Element); X is Init + 1, itr_pos(T,Position,Element,X) .
+find_pos([H|T],Position , Element):-itr_pos(H,Position, Element,0); find_pos(T,Position,Element).
+all_same_height([H|T], Position , Element):- findall(Variable,find_pos([H|T],Position , Variable),Element).
+
+/* Answer 4 */
+
+
+
+
+
+
+
+
+/* Answer 5 */
+
+% I came up with a predicate to find last element in a list
+fetch_last_itr([Element],Element):-!.
+fetch_last_itr([_|T],Element):- fetch_last_itr(T,Element).
+
+% check if element is at the end predicate
+chk_final(List,Last_elem):-fetch_last_itr(List,Element), =(Element,Last_elem).
+
+
+% traverse a list to find the stack
+trav_list([H|_],Y,Y,H):-!.
+trav_list([H|T], Position, Accum, Result):- X is Accum+ 1,trav_list(T, Position, X, Result).
+itr_list([H|T], Position ,Result):- trav_list([H|T],Position, 1, Result).
+
+% check if the element is at the top in specified stack.
+chk_lol([H|T], Position, Element):- itr_list([H|T],Position, Stack), chk_final(Stack, Element).
+
+
+% remove element in a stack.
+remove_last([X],X,[]):-!.
+remove_last([H|T],H,T):-!.
+remove_last([Y|L1],X,[Y|L2]):-remove_last(L1,X,L2).
+
+% add element at the last in a stack
+add_element([],D,[D]):-!.
+add_element([Y|T1],D,[Y|T2]):- add_element(T1,D,T2).
+
+% The below logic will print the loop and it will also check with accmulator to add or remove element.
+print_trav_list([],_,_,_,_):-!.
+print_trav_list([H|T], Stack2, Stack1, Element, Accum):-Accum =:= Stack2, I is Accum+ 1,remove_last(H,Element,Removed_list), print_loop(Removed_list),
+                                                        print_trav_list(T, Stack2, Stack1, Element, I);
+                                                        Accum =:= Stack1, I is Accum+ 1,add_element(H,Element,Added_list),print_loop(Added_list),
+                                                        print_trav_list(T, Stack2, Stack1, Element, I)
+                                                        ;
+                                                        print_loop(H), I is Accum+ 1,
+                                                        print_trav_list(T, Stack2, Stack1, Element, I).
+print_stack([H|T], Stack2, Stack1, Element):- print_trav_list([H|T],Stack2, Stack1, Element, 1).
+
+% The below logicfirst check if the move can be done by checking the element is at the top of the list.
+moveblock([H|T],Element,Stack2,Stack1):- chk_lol([H|T], Stack2, Element), 
+                                         writeln(""),writeln("Before:"),writeln(""),
+                                         print_status([H|T]),
+                                         writeln(""),writeln("After:"),writeln(""),
+                                         print_stack([H|T], Stack2, Stack1, Element),!
+                                        ; writeln("Block which is at top and present in the list can only be moved!"),!.
+
+
+
+
+
+
+
+
+
+
 
 
 
