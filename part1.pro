@@ -321,7 +321,7 @@ take the next block and compare it with the block in second piece and if it's gr
 
 if it's smaller I will move the second one to the third and insert the Stack1 piece to Stack2 and at the end I will put all the blocks at the top.
 
-So whenever there is a second empty list I will add the block from stack1 to stack2 and all the remaining blocks in stack 3 to stack2 on top of it ( These are for some cases)
+So whenever there is a second empty list I will add the block from stack1 to stack2 and all the remaining blocks in stack 3 to stack2 on top of it ( These are for some cases).
 
 You will be able to see the steps clearly.
 
@@ -341,7 +341,7 @@ merge_list([H|T], Merge_Result):- merge_list(T, TempResult),append(H, TempResult
 
 % this will fetch length of the list
 list_length([],0):-!.
-list_length([H|T], R):- write(H),list_length(T,Z),R is Z+1,!.
+list_length([H|T], R):- list_length(T,Z),R is Z+1,!.
 
 % this section is to print the solution
 print_list_status(F,S,T,C):- writeln(""),write("First_Stack: "), writeln(F),
@@ -366,8 +366,7 @@ compare_gte([H11|T11], [H12|T12]):- write("comparing"),write(H11),write(">="),wr
 
 
 % the below order_list predicates are for different cases
-order_list([H|T],[H1|T1],[],C):- Second=[H1|T1],reverse_list(Second, Updated_Second),Updated_First=[H|T],writeln(Updated_First),
-                                        writeln(Updated_Second),compare_lte(Updated_First,Updated_Second), 
+order_list([H|T],[H1|T1],[],C):- Second=[H1|T1],reverse_list(Second, Updated_Second),Updated_First=[H|T],compare_lte(Updated_First,Updated_Second), 
                                         remove_first_add_second(Updated_Second, [], Count, New_Second, Updated_Third)
                                         ,reverse_list(New_Second, RNewSecond),N is Count+C,print_list_status(Updated_First, RNewSecond,Updated_Third,N), 
                                         order_list(Updated_First,RNewSecond,Updated_Third,N);
@@ -380,27 +379,32 @@ order_list([H|T],[H1|T1],[],C):- Second=[H1|T1],reverse_list(Second, Updated_Sec
 order_list([H|T],[],[H3|T3],C):- First=[H|T], Third=[H3|T3], remove_first_add_second(First, [], Count, First_New, Second_New),
                                         N1 is Count+ C, print_list_status(First_New, Second_New,Third,N1),
                                         reverse_list(Third, RE_Third),
+                                        list_length(RE_Third, Counter), N11 is Counter+N1,
+                                        write("***Note : I am merging all the third stack blocks to second ones, Length of Stack 3 is "),
+                                        writeln(Counter),
                                         To_Merge= [Second_New,RE_Third],
                                         merge_list(To_Merge, New_M_Second),
-                                        print_list_status(First_New, New_M_Second,[],N1),
-                                        order_list(First_New,New_M_Second,[],N1).
+                                        print_list_status(First_New, New_M_Second,[],N11),
+                                        order_list(First_New,New_M_Second,[],N11).
 
 order_list([H|T],[H2|T2],[H3|T3],C):- All_First=[H|T], All_Second=[H2|T2], All_Third=[H3|T3], reverse_list(All_Second,UpdAll_Second) ,
-                                        writeln(All_First),writeln(UpdAll_Second),
                                          compare_lte(All_First,UpdAll_Second),
                                          remove_first_add_second(UpdAll_Second, All_Third, Count, New_AllSecond, NewAll_Third),
                                          reverse_list(New_AllSecond,ReNew_AllSecond) ,
                                          N2 is Count+C,print_list_status(All_First, ReNew_AllSecond,NewAll_Third,N2),
                                          order_list(All_First,ReNew_AllSecond,NewAll_Third,N2);
 
-                                       write("here"), ElseAll_First=[H|T], ElseAll_Second=[H2|T2], ElseAll_Third=[H3|T3] ,
+                                        ElseAll_First=[H|T], ElseAll_Second=[H2|T2], ElseAll_Third=[H3|T3] ,
                                         remove_first_add_second(ElseAll_First, ElseAll_Second, Count, New_Else_First, New_Else_Second),
                                         N5 is Count+C,print_list_status(New_Else_First, New_Else_Second,ElseAll_Third,N5),
                                         reverse_list(ElseAll_Third, RE_ElseAll_Third),
+                                        list_length(RE_ElseAll_Third, Counter), N6 is N5+Counter,
+                                        write("****Note : I am merging all the third stack blocks to second ones, Length of Stack 3 :"),
+                                        writeln(Counter),
                                         To_Merge= [New_Else_Second,RE_ElseAll_Third],
-                                        merge_list(To_Merge, MegredSecond), write(MegredSecond),
-                                        print_list_status(New_Else_First, MegredSecond,[],N5),
-                                        order_list(New_Else_First,MegredSecond,[],N5).
+                                        merge_list(To_Merge, MegredSecond),
+                                        print_list_status(New_Else_First, MegredSecond,[],N6),
+                                        order_list(New_Else_First,MegredSecond,[],N6).
 % base case
 order_list([], S, T,C):- write("Completed !! yay!!").
 
@@ -423,7 +427,7 @@ add_first_remove_second([H|T],[],SwapCount,FirstList,SecondList):- Move_Block=H1
                         
 
 %code starts here
-order_blocks(List, List_order):- merge_list(List, Merge_Result), reverse_list(Merge_Result, First_List),
+order_blocks(List, List_order,N):- merge_list(List, Merge_Result), reverse_list(Merge_Result, First_List),
                                     writeln(""),
                                     writeln("The first element is at the top and last element is in the bottom."),
                                     writeln("In this method only first element is moved as it is the top"),
