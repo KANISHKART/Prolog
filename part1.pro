@@ -184,7 +184,7 @@ print_status([]).
 print_status([H|T]):- print_loop(H), print_status(T).
 
 /* Answer 2 */
-itr_elem([],_,end).
+itr_elem([],_,end):-!.
 itr_elem([H|T],E,P,Init):- =(H,E) ,P is Init; X is Init + 1,itr_elem(T,E,P,X).
 find_elem([H|T], E,P):-itr_elem([H|T],E,P,0).
 
@@ -201,11 +201,7 @@ all_same_height([H|T], Position , Element):- findall(Variable,find_pos([H|T],Pos
 
 /* Answer 4 */
 
-
-
-
-
-
+same_height([H|T], Element1, Element2):-  high([H|T], Element1, Result1) , high([H|T], Element2, Result2) , Result1 =:= Result2,!.
 
 
 /* Answer 5 */
@@ -255,8 +251,120 @@ moveblock([H|T],Element,Stack2,Stack1):- chk_lol([H|T], Stack2, Element),
                                          print_stack([H|T], Stack2, Stack1, Element),!
                                         ; writeln("Block which is at top and present in the list can only be moved!"),!.
 
+/* part 3 --------------------------------------------------
+
+I know this looks a lot but this logic works
 
 
+
+*/
+
+% list will be reversed to take top elements as 1st element will be in the bottom 
+% and last element in the top this makes it easier to iterate elements
+reverse_list([],[]):-!.
+reverse_list([H|T],Result):-reverse_list(T, ReversedTail), append(ReversedTail,[H],Result).
+
+% first I am merging list into a single list 
+% I will be using other two list to sort the items.
+merge_list([], []):-!.
+merge_list([H|T], Merge_Result):- merge_list(T, TempResult),append(H, TempResult, Merge_Result),!.
+
+list_length([],0):-!.
+list_length([H|T], R):- write(H),list_length(T,Z),R is Z+1,!.
+
+print_list_status(F,S,T,C):- writeln(""),write("First_Stack: "), writeln(F),
+                                    write("Second_Stack: "),  writeln(S),
+                                    write("Third_Stack: "),  writeln(T),
+                                    write("Swap _count: "),  writeln(C),
+                                    writeln("").
+
+print_list_status(F,[],T,C):- writeln(""),write("First_Stack: "), writeln(F),
+                                    write("Second_Stack: "),  writeln([]),
+                                    write("Third_Stack: "),  writeln(T),
+                                    write("Swap _count: "),  writeln(C),
+                                    writeln("").
+
+print_list_status([],S,T,C):- writeln(""),write("First_Stack: "), writeln([]),
+                                    write("Second_Stack: "),  writeln(S),
+                                    write("Third_Stack: "),  writeln(T),
+                                    write("Swap _count: "),  writeln(C),
+                                    writeln("").
+
+compare_lte([H9|T9], [H10|T10]):- write("comparing"),write(H9),write("=<"),write(H10),H9 @=<H10.
+
+compare_gte([H11|T11], [H12|T12]):- write("comparing"),write(H11),write(">="),write(H12),H11 @>=H12.
+
+order_list([H|T],[H1|T1],[],C):- Second=[H1|T1],reverse_list(Second, Updated_Second),Updated_First=[H|T],writeln(Updated_First),
+                                        writeln(Updated_Second),compare_lte(Updated_First,Updated_Second), 
+                                        remove_first_add_second(Updated_Second, [], Count, New_Second, Updated_Third)
+                                        ,reverse_list(New_Second, RNewSecond),N is Count+C,print_list_status(Updated_First, RNewSecond,Updated_Third,N), 
+                                        order_list(Updated_First,RNewSecond,Updated_Third,N);
+                                        ElseSecond=[H1|T1],ElseFirst=[H|T],
+                                        remove_first_add_second(ElseFirst, ElseSecond, Count, NewFirst, NewSecond),
+                                        N4 is Count+C, 
+                                        print_list_status(NewFirst, NewSecond,[],N4),
+                                        order_list(NewFirst,NewSecond,[],N4).
+
+
+                            
+order_list([H|T],[],[H3|T3],C):- First=[H|T], Third=[H3|T3], remove_first_add_second(First, [], Count, First_New, Second_New),
+                                        N1 is Count+ C, print_list_status(First_New, Second_New,Third,N1),
+                                        reverse_list(Third, RE_Third),
+                                        To_Merge= [Second_New,RE_Third],
+                                        merge_list(To_Merge, New_M_Second),
+                                        print_list_status(First_New, New_M_Second,[],N1),
+                                        order_list(First_New,New_M_Second,[],N1).
+
+
+order_list([H|T],[H2|T2],[H3|T3],C):- All_First=[H|T], All_Second=[H2|T2], All_Third=[H3|T3], reverse_list(All_Second,UpdAll_Second) ,
+                                        writeln(All_First),writeln(UpdAll_Second),
+                                         compare_lte(All_First,UpdAll_Second),
+                                         remove_first_add_second(UpdAll_Second, All_Third, Count, New_AllSecond, NewAll_Third),
+                                         reverse_list(New_AllSecond,ReNew_AllSecond) ,
+                                         N2 is Count+C,print_list_status(All_First, ReNew_AllSecond,NewAll_Third,N2),
+                                         order_list(All_First,ReNew_AllSecond,NewAll_Third,N2);
+
+                                       write("here"), ElseAll_First=[H|T], ElseAll_Second=[H2|T2], ElseAll_Third=[H3|T3] ,
+                                        remove_first_add_second(ElseAll_First, ElseAll_Second, Count, New_Else_First, New_Else_Second),
+                                        N5 is Count+C,print_list_status(New_Else_First, New_Else_Second,ElseAll_Third,N5),
+                                        reverse_list(ElseAll_Third, RE_ElseAll_Third),
+                                        To_Merge= [New_Else_Second,RE_ElseAll_Third],
+                                        merge_list(To_Merge, MegredSecond), write(MegredSecond),
+                                        print_list_status(New_Else_First, MegredSecond,[],N5),
+                                        order_list(New_Else_First,MegredSecond,[],N5).
+
+order_list([], S, T,C):- write("Completed !! yay!! good job.").
+
+order_list([H|T],[],[],C):- remove_first_add_second([H|T], [], Count, Updated_First, Updated_Second)
+                                        ,Count is C+Count, print_list_status(Updated_First, Updated_Second,[],Count), 
+                                        order_list(Updated_First, Updated_Second, [], Count).
+
+remove_first_add_second([H|T],[H1|T1], SwapCount, FirstList,SecondList):- Move_Block=H,remove_last([H|T],H,Upd_First), FirstList = Upd_First,
+                                       add_element([H1|T1],Move_Block, Upd_Second), SecondList=Upd_Second,SwapCount is 1,!.
+
+remove_first_add_second([H|T],[],SwapCount,FirstList,SecondList):- Move_Block=H,remove_last([H|T],H,Upd_First), FirstList = Upd_First, 
+                                  add_element([],Move_Block, Upd_Second), SecondList=Upd_Second, SwapCount is 1,!.
+
+
+add_first_remove_second([H|T],[H1|T1], SwapCount,FirstList,SecondList):-Move_Block=H1,remove_last([H1|T1],H1,Upd_Second), FirstList = Upd_First,
+                                       add_element([H|T],Move_Block, Upd_First),SecondList=Upd_Second, SwapCount is 1,!.
+
+add_first_remove_second([H|T],[],SwapCount,FirstList,SecondList):- Move_Block=H1,remove_last([H1|T1],H1,Upd_Second), FirstList = Upd_First,
+                                       add_element([],Move_Block, Upd_First),SecondList=Upd_Second, SwapCount is 1,!.
+                        
+
+order_blocks(List, List_order):- merge_list(List, Merge_Result), reverse_list(Merge_Result, First_List),
+                                    writeln(""),
+                                    writeln("The first element is at the top and last element is in the bottom."),
+                                    writeln("In this method only first element is moved as it is the top"),
+                                    writeln(""),
+                                    write("First_Stack: "), writeln(First_List),
+                                    append([],[],Second_List),
+                                     append([],[],Third_List),
+                                    write("Second_Stack: "),  writeln(Second_List),
+                                    write("Third_Stack: "),  writeln(Third_List), 
+                                    writeln(""),
+                                    order_list(First_List, Second_List, Third_List, 0),!.
 
 
 

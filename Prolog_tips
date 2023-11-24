@@ -66,3 +66,12 @@ size([H|T], N):- size(T,N1) , N is N1+1.
 
 sum([],0).
 sum([H|T], R):- sum(T, N1), R is H+N1. 
+
+
+
+reverse_list(ElseAll_Third, RE_ElseAll_Third),
+                                        To_Merge= [New_Else_Second,RE_ElseAll_Third],
+                                        merge_list(To_Merge, MegredSecond), write(MegredSecond),
+                                        write("Adding all list 3 to list 2 with swap count increament"),
+                                        N5 is N5+2,print_list_status(New_Else_First, MegredSecond,[],N5),
+                                        order_list(New_Else_First,MegredSecond,[],N5)
