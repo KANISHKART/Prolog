@@ -365,7 +365,7 @@ compare_lte([H9|T9], [H10|T10]):- write("comparing"),write(H9),write("=<"),write
 compare_gte([H11|T11], [H12|T12]):- write("comparing"),write(H11),write(">="),write(H12),H11 @>=H12.
 
 
-
+% the below order_list predicates are for different cases
 order_list([H|T],[H1|T1],[],C):- Second=[H1|T1],reverse_list(Second, Updated_Second),Updated_First=[H|T],writeln(Updated_First),
                                         writeln(Updated_Second),compare_lte(Updated_First,Updated_Second), 
                                         remove_first_add_second(Updated_Second, [], Count, New_Second, Updated_Third)
